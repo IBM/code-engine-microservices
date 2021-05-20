@@ -8,7 +8,7 @@ This code pattern introduces you to [Code Engine](https://www.ibm.com/cloud/code
 * Currency Exchange (Node.js)
 * UI (Node.js/React)
 
-[IBM Cloud Code Engine](https://cloud.ibm.com/docs/codeengine?topic=codeengine-getting-started) is a managed serverless platform that can run both applications that serve HTTP requests which includes web applications or microservices as well as run batch jobs that run once in order to complete a task. These workloads are built within the same [Kubernetes](https://kubernetes.io/) infrastructure and take advantage of open source technology including [Knative](https://knative.dev/) and [Istio](https://istio.io/). Knative allows for Code Engine to run serverless and used to autoscale applications. Istio is used for routing and traffic management of applications. In addition, Code Engine is integrated with [LogDNA](https://www.logdna.com/) to allow for logging of your applications.
+[IBM Cloud Code Engine](https://cloud.ibm.com/docs/codeengine?topic=codeengine-getting-started) is a managed serverless platform that can run both applications that serve HTTP requests which includes web applications or microservices as well as run batch jobs that run once in order to complete a task. These workloads are built within the same [Kubernetes](https://kubernetes.io/) infrastructure and take advantage of open source technology including [Knative](https://knative.dev/) and [Istio](https://istio.io/). Knative allows for Code Engine to run serverless and used to auto-scale applications. Istio is used for routing and traffic management of applications. In addition, Code Engine is integrated with [LogDNA](https://www.logdna.com/) to allow for logging of your applications.
 
 # Architecture
 
@@ -84,7 +84,7 @@ cd code-engine-microservices
 
 For more details and documentation on the Code Engine CLI, go [here](https://cloud.ibm.com/docs/codeengine?topic=codeengine-cli).
 
-6. Run `./deploy-code-engine.sh` to deploy the Bee Travels application to IBM Cloud Code Engine.
+6. Run the `deploy-code-engine.sh` script to deploy the Bee Travels application to IBM Cloud Code Engine.
 
 ```
 cd code-engine-microservices
@@ -109,7 +109,7 @@ Since Code Engine is a fully managed, serverless platform, the number of instanc
 
 ![](img/code_engine_instances.png)
 
-4. Open up a second window of your web browser side by side with the first window and go to `https://load.fun.cloud.ibm.com` For the URL to enter, copy/paste the `https://ui.<NAMESPACE>.<REGION>.codeengine.appdomain.cloud` URL that is used to access the Bee Travels application. You can also retrieve this URL from your first web browser URL by copying the URL from the `Open Application URL` button.
+4. Open up a second window of your web browser side by side with the first window and go to [https://load.fun.cloud.ibm.com](https://load.fun.cloud.ibm.com) to access the IBM load generator tool. For the URL to enter, copy/paste the `https://ui.<NAMESPACE>.<REGION>.codeengine.appdomain.cloud` URL that is used to access the Bee Travels application. You can also retrieve this URL from your first web browser URL by copying the URL from the `Open Application URL` button.
 
 ![](img/code_engine_url.png)
 
