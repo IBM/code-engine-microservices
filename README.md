@@ -93,7 +93,7 @@ cd code-engine-microservices
 
 7. When the script finishes, you will notice a URL in the terminal window that has the following format: `https://ui.<NAMESPACE>.<REGION>.codeengine.appdomain.cloud` This is the entrypoint to the Bee Travels application on Code Engine. Open this URL in a browser to view and interact with the Bee Travels application.
 
-## Generate Traffic
+## 5. Generate Traffic
 
 Since Code Engine is a fully managed, serverless platform, the number of instances running for each application will auto-scale depending on the maximum number of concurrent requests per instance of incoming traffic to each application. In this part of the code pattern, we are going to generate traffic to the `UI` application of Bee Travels and watch the auto-scaling with the number of running instances of our application change with traffic. To do this, run the following steps:
 
