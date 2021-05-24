@@ -131,7 +131,7 @@ Without having any knowledge or interaction with the underlying infrastructure o
 * Secured an external application
 * Independent auto-scaling on a per-microservice basis
 
-All of this was completed by only specifying your desired runtime semantics (ex. whether to scale or not) and Code Engine took care of the rest.
+All of this was completed by only specifying desired runtime semantics (ex. whether to scale or not) and Code Engine took care of the rest.
 
 # License
 
