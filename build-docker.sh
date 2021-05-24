@@ -26,10 +26,6 @@ sed "s/\${DOCKERHUB_NAME}/${DOCKERHUB_NAME}/" src/services/car-rental-v1/Dockerf
 docker build -t ${DOCKERHUB_NAME}/carrental-v1:latest src/services/car-rental-v1
 rm -rf src/services/car-rental-v1/Dockerfile
 
-sed "s/\${DOCKERHUB_NAME}/${DOCKERHUB_NAME}/" src/services/currency-exchange/Dockerfile_template > src/services/currency-exchange/Dockerfile
-docker build -t ${DOCKERHUB_NAME}/currencyexchange:latest src/services/currency-exchange
-rm -rf src/services/currency-exchange/Dockerfile
-
 docker build -t ${DOCKERHUB_NAME}/python-hotel-v1:latest src/services/hotel-v1-python
 
 sed "s/\${DOCKERHUB_NAME}/${DOCKERHUB_NAME}/" src/services/ui/Dockerfile_template > src/services/ui/Dockerfile
@@ -40,6 +36,5 @@ docker login
 
 docker push ${DOCKERHUB_NAME}/destination-v1:latest
 docker push ${DOCKERHUB_NAME}/carrental-v1:latest
-docker push ${DOCKERHUB_NAME}/currencyexchange:latest
 docker push ${DOCKERHUB_NAME}/python-hotel-v1:latest
 docker push ${DOCKERHUB_NAME}/ui:latest

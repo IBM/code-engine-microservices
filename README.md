@@ -5,7 +5,6 @@ This code pattern introduces you to [Code Engine](https://www.ibm.com/cloud/code
 * Destination v1 (Node.js)
 * Car Rental v1 (Node.js)
 * Hotel v1 (Python)
-* Currency Exchange (Node.js)
 * UI (Node.js/React)
 
 Below is the architecture diagram for v1 of the Bee Travels application:
@@ -66,25 +65,28 @@ cd code-engine-microservices
 
 4. Verify the plug-in is installed by running `ibmcloud plugin list` and seeing `code-engine/ce` in the list of plug-ins.
 
-5. Open [deploy-code-engine.sh](deploy-code-engine.sh) and let's look at lines 15-22 of the script:
+5. Open [deploy-code-engine.sh](deploy-code-engine.sh) and let's look at lines 15-20 of the script:
 
-* `ibmcloud ce project create -n "Bee Travels"` creates a Code Engine project named `Bee Travels`. A project is a grouping of Code Engine applications and jobs.
+* `ibmcloud ce project create -n "Bee Travels"` creates a Code Engine project named `Bee Travels`. A project is a grouping of Code Engine applications and jobs. Creating a project allows for network isolation, sharing of resources (ex. secrets), and grouping together applications and jobs that are related.
 
-* `ibmcloud ce project select -n "Bee Travels"` selects the project `Bee Travels` as the current project that will be worked with.
+* `id=$(ibmcloud ce proj current | grep "Kubectl Context:" | awk '{print $3}')` is responsible for getting the unique ID of the project. Each project has an associated unique ID that is used as part of the endpoints defined for the apps within that project. This is needed for getting the URLs of applications for internal traffic to the project which will be shown later.
 
-* `ns=$(ibmcloud ce proj current | grep "Kubectl Context:" | awk '{print $3}')` is responsible for getting the name of the namespace used by the project. This is needed for getting the URLs of applications for internal traffic to the project which will be shown later.
-
-*  `ibmcloud ce app create -n destination-v1 -i ${DOCKERHUB_NAME}/destination-v1:latest --cl -p 9001 --min 1 --cpu 0.25 -m 0.5G -e HOST_IP=destination-v1 -e LOG_LEVEL=info -e SCHEME=http` creates an application in our Code Engine project for our destination microservice. An application in Code Engine runs your code to serve HTTP requests with the number of running instances automatically scaled up or down. The next three lines of the shell script for creating the hotel, car rental, and currency exchange microservices are similar, because all four services are backend services of the Bee Travels application and do not need external traffic.
+*  `ibmcloud ce app create -n destination-v1 -i ${DOCKERHUB_NAME}/destination-v1:latest --cl -p 9001 --min 1 --cpu 0.25 -m 0.5G -e HOST_IP=destination-v1 -e LOG_LEVEL=info` creates an application in our Code Engine project for our destination microservice. An application in Code Engine runs your code to serve HTTP requests with the number of running instances automatically scaled up or down. The next two lines of the shell script for creating the hotel and car rental microservices are similar, because all three services are backend services of the Bee Travels application and do not need external traffic.
 	* `-n` names the application
 	* `-i` points to the Docker image reference
-	* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic
-	* `-p` specifies the listening port
-	* `--min` specifies the minimum number of instances of the application running
+	* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic. This can be used by backend services that do not need exposure to outside traffic and only communicate between other services of an application. By not exposing applications that don't need external exposure, this may also savepotential security risks
+	* `-p` specifies the listening port. This only needs to be set when the port used by the application is not the default 8080
+	* `--min` specifies the minimum number of instances of the application running. The default value is 0
 	* `--cpu` specifies the amount of CPU resources for each instance
 	* `-m` specifies the amount of memory resources for each instance
 	* `-e` is used for each environment variable used by the application
 
-* `ibmcloud ce app create -n ui -i ${DOCKERHUB_NAME}/ui:latest -p 9000 --min 1 --cpu 0.25 -m 0.5G -e NODE_ENV=production -e DESTINATION_URL=http://destination-v1.${ns}.svc.cluster.local -e HOTEL_URL=http://hotel-v1.${ns}.svc.cluster.local -e CAR_URL=http://carrental-v1.${ns}.svc.cluster.local` creates an application in our Code Engine project for the UI microservice. This is the microservice that users will interact with and therefore requires external traffic. Notice how this command does not have the `--cl` flag. The removal of this flag allows for external traffic and a URL to be generated for the application. In addition, some of the environment variables for this microservice specify the URLs to communicate with the other microservices. Since the other microservices use internal traffic, Code Engine uses the format `<APP_NAME>.<NAMESPACE>.svc.cluster.local` as the entrypoint to an application. `APP_NAME` for each application is already defined in each `ibmcloud ce app create` command and `NAMESPACE` was gotten from one of the previous commands in this script.
+* `ibmcloud ce app create -n ui -i ${DOCKERHUB_NAME}/ui:latest -p 9000 --min 1 --cpu 0.25 -m 0.5G -e NODE_ENV=production -e DESTINATION_URL=http://destination-v1.${id}.svc.cluster.local -e HOTEL_URL=http://hotel-v1.${id}.svc.cluster.local -e CAR_URL=http://carrental-v1.${id}.svc.cluster.local` creates an application in our Code Engine project for the UI microservice. This is the microservice that users will interact with and therefore requires external traffic. Notice how this command does not have the `--cl` flag. The removal of this flag allows for external traffic and a URL to be generated for the application. The URL is secured automatically. In addition, some of the environment variables for this microservice specify the URLs to communicate with the other microservices. Since the other microservices use internal traffic, Code Engine uses the format `<APP_NAME>.<ID>.svc.cluster.local` as the entrypoint to an application. `APP_NAME` for each application is already defined in each `ibmcloud ce app create` command and `ID` was gotten from one of the previous commands in this script.
+
+Notice how the minimum number of instances for each application of Bee Travels is set to 1: `--min 1`. This is due to the fact that we want Bee Travels to always be readily available for traffic without delay and needing an instance to be initialized via cold start. Use cases for using the default value of 0 for the mimimum number of instances for each application include:
+	* Application does not receive a high volume of traffic consistently
+	* Latency is not as much of a priority
+	* Interested in conserving resources and costs
 
 For more details and documentation on the Code Engine CLI, go [here](https://cloud.ibm.com/docs/codeengine?topic=codeengine-cli).
 
@@ -118,6 +120,17 @@ Since Code Engine is a fully managed, serverless platform, the number of instanc
 ![](img/code_engine_url.png)
 
 5. Press the `Generate Load` button on the load generation tool and watch how the number of instances of the `ui` application auto-scale up to 10 while traffic is being generated and back down to 1 once the traffic stops.
+
+# Congratulations
+
+Without having any knowledge or interaction with the underlying infrastructure of Code Engine, you have successfully completed the following:
+
+* Built Docker images for Node.js and Python microservices
+* Created/Deployed a workload to Code Engine consisting of public and private microservices
+* Secured an external application
+* Independent auto-scaling on a per-microservice basis
+
+All of this was completed by only specifying your desired runtime semantics (ex. whether to scale or not) and Code Engine took care of the rest.
 
 # License
 
