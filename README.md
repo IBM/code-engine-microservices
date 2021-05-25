@@ -74,7 +74,7 @@ cd code-engine-microservices
 *  `ibmcloud ce app create -n destination-v1 -i ${DOCKERHUB_NAME}/destination-v1:latest --cl -p 9001 --min 1 --cpu 0.25 -m 0.5G -e HOST_IP=destination-v1 -e LOG_LEVEL=info` creates an application in our Code Engine project for our destination microservice. An application in Code Engine runs your code to serve HTTP requests with the number of running instances automatically scaled up or down. The next two lines of the shell script for creating the hotel and car rental microservices are similar, because all three services are backend services of the Bee Travels application and do not need external traffic.
 	* `-n` names the application
 	* `-i` points to the Docker image reference
-	* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic. This can be used by backend services that do not need exposure to outside traffic and only communicate between other services of an application. By not exposing applications that don't need external exposure, this may also savepotential security risks
+	* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic. This can be used by backend services that do not need exposure to outside traffic and only communicate between other services of an application. By not exposing applications that don't need external exposure, this may also save potential security risks
 	* `-p` specifies the listening port. This only needs to be set when the port used by the application is not the default 8080
 	* `--min` specifies the minimum number of instances of the application running. The default value is 0
 	* `--cpu` specifies the amount of CPU resources for each instance
