@@ -7,7 +7,7 @@ COPY frontend .
 RUN yarn build
 
 
-FROM ${DOCKERHUB_NAME}/node-base:v1 as release
+FROM beetravels/node-base:v1 as release
 
 WORKDIR /services/ui/backend
 
