@@ -11,20 +11,20 @@ Below is the architecture diagram for v1 of the Bee Travels application:
 
 ![](img/bee_travels_v1_architecture.png)
 
-[IBM Cloud Code Engine](https://cloud.ibm.com/docs/codeengine?topic=codeengine-getting-started) is a managed serverless platform that can run both applications that serve HTTP requests which includes web applications or microservices as well as run batch jobs that run once in order to complete a task. These workloads are built within the same [Kubernetes](https://kubernetes.io/) infrastructure and take advantage of open source technology including [Knative](https://knative.dev/) and [Istio](https://istio.io/). Knative allows for Code Engine to run serverless and used to auto-scale applications. Istio is used for routing and traffic management of applications. In addition, Code Engine is integrated with [LogDNA](https://www.logdna.com/) to allow for logging of your applications. As a developer, the benefit to using Code Engine is that this Kubernetes infrastructure and cluster complexity is invisible to you. No Kubernetes training is needed and developers can just focus on their code.
+[IBM Cloud Code Engine](https://cloud.ibm.com/docs/codeengine?topic=codeengine-getting-started) is a managed serverless platform that can run both applications that serve HTTP requests which includes web applications or microservices as well as run batch jobs that run once in order to complete a task. These workloads are run within the same [Kubernetes](https://kubernetes.io/) infrastructure and take advantage of open source technology including [Knative](https://knative.dev/) and [Istio](https://istio.io/). Knative is used to manage the serverless aspect of hosting applications, which includes auto-scaling of them based on incoming load - including down to zero when they are idle. Istio is used for routing and traffic management of applications. In addition, Code Engine is integrated with [LogDNA](https://www.logdna.com/) to allow for logging of your applications. As a developer, the benefit to using Code Engine is that this Kubernetes infrastructure and cluster complexity is invisible to you. No Kubernetes training is needed and developers can just focus on their code.
 
 # Architecture
 
 ![](img/architecture.png)
 
-1. The provided scripts build the Docker images of the Bee Travels microservices and deploy them to Code Engine.
+1. The provided scripts build the container images of the Bee Travels microservices and deploy them to Code Engine.
 2. The IBM load generation tool generates traffic to the Bee Travels application running in Code Engine. The auto-scaling component of Code Engine adjusts the number of running instances of the application based on the amount of incoming traffic.
 
 # Steps
 
 1. [Prerequisites](#1-prerequisites)
 2. [Fork the repo](#2-fork-the-repo)
-3. [Build Docker Images](#3-build-docker-images)
+3. [Build Container Images](#3-build-container-images)
 4. [Deploy to Code Engine](#4-deploy-to-code-engine)
 5. [Generate Traffic](#5-generate-traffic)
 
@@ -45,9 +45,11 @@ To follow the steps in this code pattern, you need the following:
 
 2. Select the account from the list that you would like to fork the repo to.
 
-## 3. Build Docker Images
+## 3. Build Container Images
 
-1. From a terminal window, run the `build-docker.sh` script to build the Bee Travels application and push the newly created Docker images to your Docker Hub account.
+The Bee Travels microservices have provided Dockerfiles that will be used to build the container images using Docker.
+
+1. From a terminal window, run the `build-docker.sh` script to build the Bee Travels application and push the newly created container images to your Docker Hub account.
 > NOTE: This step can take a few minutes
 
 ```
@@ -57,7 +59,7 @@ cd code-engine-microservices
 
 ## 4. Deploy to Code Engine
 
-1. From a terminal window, log in to your IBM Cloud account using the CLI command: `ibmcloud login --sso`
+1. From a terminal window, log in to your IBM Cloud account using the CLI command: `ibmcloud login`
 
 2. Verify you are targeting the correct region, account, resource group, org and space by running `ibmcloud target`. To set any of these to new targets, add `-h` to the command to view the necessary flags for changing the targets.
 
@@ -73,7 +75,7 @@ cd code-engine-microservices
 
 *  `ibmcloud ce app create -n destination-v1 -i ${DOCKERHUB_NAME}/destination-v1:latest --cl -p 9001 --min 1 --cpu 0.25 -m 0.5G -e HOST_IP=destination-v1 -e LOG_LEVEL=info` creates an application in our Code Engine project for our destination microservice. An application in Code Engine runs your code to serve HTTP requests with the number of running instances automatically scaled up or down. The next two lines of the shell script for creating the hotel and car rental microservices are similar, because all three services are backend services of the Bee Travels application and do not need external traffic.
 	* `-n` names the application
-	* `-i` points to the Docker image reference
+	* `-i` points to the container image reference
 	* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic. This can be used by backend services that do not need exposure to outside traffic and only communicate between other services of an application. By not exposing applications that don't need external exposure, this may also save potential security risks
 	* `-p` specifies the listening port. This only needs to be set when the port used by the application is not the default 8080
 	* `--min` specifies the minimum number of instances of the application running. The default value is 0
@@ -86,7 +88,7 @@ cd code-engine-microservices
 Notice how the minimum number of instances for each application of Bee Travels is set to 1: `--min 1`. This is due to the fact that we want Bee Travels to always be readily available for traffic without delay and needing an instance to be initialized via cold start. Use cases for using the default value of 0 for the mimimum number of instances for each application include:
 
 * Application does not receive a high volume of traffic consistently
-* Latency is not as much of a priority
+* Cold start delays are not a concern
 * Interested in conserving resources and costs
 
 For more details and documentation on the Code Engine CLI, go [here](https://cloud.ibm.com/docs/codeengine?topic=codeengine-cli).
@@ -102,7 +104,7 @@ cd code-engine-microservices
 
 ## 5. Generate Traffic
 
-Since Code Engine is a fully managed, serverless platform, the number of instances running for each application will auto-scale depending on the maximum number of concurrent requests per instance of incoming traffic to each application. In this part of the code pattern, we are going to generate traffic to the `UI` application of Bee Travels and watch the auto-scaling with the number of running instances of our application change with traffic. To do this, run the following steps:
+Since Code Engine is a fully managed, serverless platform, the number of instances running for each application will auto-scale depending on the maximum number of concurrent requests per instance of incoming traffic to each application. In this part of the code pattern, we are going to generate traffic to the `UI` application of Bee Travels and watch the number of running instances of the application auto-scale based on the changing traffic. To do this, run the following steps:
 
 1. View the Bee Travels project in the UI of IBM Cloud by going to `https://cloud.ibm.com/codeengine/projects` and choose the `Bee Travels` project.
 
@@ -126,7 +128,7 @@ Since Code Engine is a fully managed, serverless platform, the number of instanc
 
 Without having any knowledge or interaction with the underlying infrastructure of Code Engine, you have successfully completed the following:
 
-* Built Docker images for Node.js and Python microservices
+* Built container images for Node.js and Python microservices
 * Created/Deployed a workload to Code Engine consisting of public and private microservices
 * Secured an external application
 * Independent auto-scaling on a per-microservice basis
