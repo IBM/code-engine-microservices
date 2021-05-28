@@ -1,11 +1,11 @@
-FROM ${DOCKERHUB_NAME}/node-base:v1 as release
+FROM beetravels/node-base:v1 as release
 
-WORKDIR /services/destination-v1
+WORKDIR /services/car-rental-v1
 
 COPY src src
 COPY data data
 COPY package.json .
 
-EXPOSE 9001
+EXPOSE 9102
 
 CMD ["yarn", "node", "-r", "esm", "./src/bin/www.js"]

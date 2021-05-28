@@ -1,4 +1,4 @@
-FROM ${DOCKERHUB_NAME}/node-base:v1 as ui
+FROM beetravels/node-base:v1 as ui
 
 WORKDIR /services/ui/frontend
 
