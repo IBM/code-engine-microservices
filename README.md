@@ -75,45 +75,45 @@ ibmcloud ce registry create -n "${DOCKERHUB_NAME}-dockerhub" -u $DOCKERHUB_NAME 
 ```
 
 Line 11 creates an image registry access secret. For the purpose of this code pattern, the registry we will be working with is Dockerhub.
-	* `-n` names the image registry access secret
-	* `-u` specifies the username to access the registry server
-	* `-p` specifies the password to access the registry server
-	* `-s` is the URL of the registry server
+* `-n` names the image registry access secret
+* `-u` specifies the username to access the registry server
+* `-p` specifies the password to access the registry server
+* `-s` is the URL of the registry server
 
 ```
 ibmcloud ce build create -n destination-v1-build -i ${DOCKERHUB_NAME}/destination-v1:latest --src https://github.com/IBM/code-engine-microservices --rs "${DOCKERHUB_NAME}-dockerhub" --cdr src/services/destination-v1 --sz small
 ```
 
 Line 14 creates a build configuration that will turn the source code from Github into runnable container images for applications in Code Engine. Lines 19, 24, and 29 of the shell script are similar in which they specify the build configurations for the hotel, car rental, and ui microservices.
-	* `-n` names the build
-	* `-i` points to where the built container image will be pushed to
-	* `--src` points to the Github repo where the source code is
-	* `--rs` the name of the image registry access secret to be used
-	* `--cdr` specifies the directory in the Github repo where the Dockerfile to be used is
-	* `--sz` specifies the size for the build which determines the amount of resources used. This is optional and the default value is `medium`.
+* `-n` names the build
+* `-i` points to where the built container image will be pushed to
+* `--src` points to the Github repo where the source code is
+* `--rs` the name of the image registry access secret to be used
+* `--cdr` specifies the directory in the Github repo where the Dockerfile to be used is
+* `--sz` specifies the size for the build which determines the amount of resources used. This is optional and the default value is `medium`.
 
 ```
 ibmcloud ce buildrun submit -b destination-v1-build -n destination-v1-buildrun -w
 ```
 
 Line 15 starts and runs the build configuration that was created on the previous line. Lines 20, 25, and 30 of the shell script are similar in which the start and run the build configurations for the hotel, car rental, and ui microservices.
-	* `-b` the name of the build configuration to run the build
-	* `-n` names the build run
-	* `-w` waits for the build run to complete before moving on to the next line of the shell script. This is optional.
+* `-b` the name of the build configuration to run the build
+* `-n` names the build run
+* `-w` waits for the build run to complete before moving on to the next line of the shell script. This is optional.
 
 ```
 ibmcloud ce app create -n destination-v1 -i ${DOCKERHUB_NAME}/destination-v1:latest --cl -p 9001 --min 1 --cpu 0.25 -m 0.5G -e LOG_LEVEL=info
 ``` 
 
 Line 16 creates an application in our Code Engine project for our destination microservice. An application in Code Engine runs your code to serve HTTP requests with the number of running instances automatically scaled up or down. Lines 21 and 26 of the shell script for creating the hotel and car rental microservices are similar, because all three services are backend services of the Bee Travels application and do not need external traffic.
-	* `-n` names the application
-	* `-i` points to the container image reference
-	* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic. This can be used by backend services that do not need exposure to outside traffic and only communicate between other services of an application. By not exposing applications that don't need external exposure, this may also save potential security risks
-	* `-p` specifies the listening port. This only needs to be set when the port used by the application is not the default 8080
-	* `--min` specifies the minimum number of instances of the application running. The default value is 0
-	* `--cpu` specifies the amount of CPU resources for each instance
-	* `-m` specifies the amount of memory resources for each instance
-	* `-e` is used for each environment variable used by the application
+* `-n` names the application
+* `-i` points to the container image reference
+* `--cl` specifies that the application will only have a private endpoint and no exposure to external traffic. This can be used by backend services that do not need exposure to outside traffic and only communicate between other services of an application. By not exposing applications that don't need external exposure, this may also save potential security risks
+* `-p` specifies the listening port. This only needs to be set when the port used by the application is not the default 8080
+* `--min` specifies the minimum number of instances of the application running. The default value is 0
+* `--cpu` specifies the amount of CPU resources for each instance
+* `-m` specifies the amount of memory resources for each instance
+* `-e` is used for each environment variable used by the application
 
 ```
 ibmcloud ce app create -n ui -i ${DOCKERHUB_NAME}/ui:latest -p 9000 --min 1 --cpu 0.25 -m 0.5G -e NODE_ENV=production -e DESTINATION_URL=http://destination-v1.${id}.svc.cluster.local -e HOTEL_URL=http://hotel-v1.${id}.svc.cluster.local -e CAR_URL=http://carrental-v1.${id}.svc.cluster.local
