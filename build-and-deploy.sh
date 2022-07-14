@@ -7,7 +7,7 @@ read -s -p "Dockerhub Password: " DOCKERHUB_PASS
 [ -z "$DOCKERHUB_PASS" ] && echo "Missing required Dockerhub Password"  && exit 1
 
 ibmcloud ce project create -n "Bee Travels"
-id=$(ibmcloud ce proj current | grep "Kubectl Context:" | awk '{print $3}')
+id=$(ibmcloud ce proj current | grep "Context:" | awk '{print $2}')
 ibmcloud ce registry create -n "${DOCKERHUB_NAME}-dockerhub" -u $DOCKERHUB_NAME -p $DOCKERHUB_PASS -s https://index.docker.io/v1/
 
 # Destination

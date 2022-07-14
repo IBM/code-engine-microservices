@@ -10,7 +10,7 @@ COPY data data
 
 RUN yum clean all
 
-RUN yum install -y python3
+RUN yum install -y python39
 RUN python3 -m pip install -r requirements.txt
 
 RUN yum module enable nodejs:12; yum install -y @nodejs:12/common
